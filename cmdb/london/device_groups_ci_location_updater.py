@@ -59,6 +59,7 @@ def get_did_details(did):
 
 # get the CIs - by Org for Mt. Sinai. Set the SL org ID here
 org_id = 1825
+# org_id = 1219
 locations_list = []
 
 with open("cmdb_locations_list") as file:
@@ -196,6 +197,7 @@ for group in locations_list:
     print "Device Group: %s" % group[1]
     print dgid, location_sysid
     print "-------------------------------------------------------------------"
+    # if dgid == "321":
     # get device group members
     dids = get_device_grp_devs(dgid)
     for dev in dids: 
@@ -238,13 +240,13 @@ for group in locations_list:
                     str(device_dict["device_name"]), e)
                 print "invalid cached sysid for: %s" % item
                 invalid_cache_list.append(item)
-        # else:
-        #     response_ci_did = snow_ci_query(company, _filter, snow_table)
-        #     if response_ci_did is not None:
-        #         print "Found CI, updating"
-        #         if response_ci_did["result"]:
-        #             ci_sys_id = manage_ci(device_dict, str(response_ci_did["result"][0]["sys_id"]), snow_table)
-        #     else: 
-        #         print "New CI, creating"
-        #         ci_sys_id = manage_ci(device_dict, None, snow_table)
+    # else:
+    #     response_ci_did = snow_ci_query(company, _filter, snow_table)
+    #     if response_ci_did is not None:
+    #         print "Found CI, updating"
+    #         if response_ci_did["result"]:
+    #             ci_sys_id = manage_ci(device_dict, str(response_ci_did["result"][0]["sys_id"]), snow_table)
+    #     else: 
+    #         print "New CI, creating"
+    #         ci_sys_id = manage_ci(device_dict, None, snow_table)
         

@@ -153,7 +153,8 @@ except (TypeError, KeyError), e:
 
 
 # some routines to filter out un-wanted cases
-if "vlan" or "vl" in start_data["message"].lower():
+if ("vlan" in start_data["message"].lower()) or ("vl" in start_data["message"].lower()):
+    True
     if "threshold" or "bandwidth" in start_data["message"].lower():
         # don't continue with case creation, just log and stop
         # this is a vlan bandwidth event
@@ -161,7 +162,7 @@ if "vlan" or "vl" in start_data["message"].lower():
         update_case_notes = False
         correlate_only = False
         notes_list.append("This is a vlan interface bandwidth event, case creation and updates stopping")
-        EM7_RESULT = make_display_notes(notes_list)
+        # EM7_RESULT = make_display_notes(notes_list)
 else:
     pass
 
@@ -247,7 +248,11 @@ if correlate_only is True:
     %s """ % (start_data["message"])
     
     snow_case_dict = {"work_notes": work_notes,
-                      "u_sciencelogic_event": "https://monitor.fidelus.com/em7/index.em7?exec=event_print_ajax&aid=%s" % event_id}
+                      "u_sciencelogic_event": "https://monitor.fidelus.com/em7/index.em7?exec=event_print_ajax&aid=%s" % event_id,
+                      "assigned_to": "",
+                      "state": 18  # PENDING
+                      }
+    
     case = fidelus.servicenow.update_case(snow_case_dict, case_update_sysid)
     
     # update SL to include the case # and link
