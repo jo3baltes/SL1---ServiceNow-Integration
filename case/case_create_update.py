@@ -35,6 +35,7 @@ def make_display_notes(notes):
     elif isinstance(notes, str):
         return "<p><font style='font: 9pt Helvetica;'>%s</font>" % (str(notes))
 
+
 # ------------------------------------------------------------------------------
 # Globals
 # ------------------------------------------------------------------------------
@@ -69,17 +70,17 @@ if xtype == "0":
     device_name = ""
     ip = ""
     _filter = ""
-    ci_sys_id =  ""
+    ci_sys_id = ""
     location = ""
     contact = ""
 elif xtype == "1":
     # handle devcie event
     start_data = fidelus.silo.get_dev_event_data(event_id)
     device_name = start_data["device"]
-    ip = start_data["device_ip"]  #TODO: get from DB
+    ip = start_data["device_ip"]
     root_did = start_data["dcm_root_did"]
     emessage = start_data["message"]
-    ci_sysid =  start_data["ci_sysid"]
+    ci_sysid = start_data["ci_sysid"]
     company = start_data["company"]
     snow_company = start_data["billing_id"]
     etype = start_data["etype"]
@@ -123,8 +124,6 @@ elif xtype == "1":
         contact = ""
         notes_list.append("Error: No Contact found, error is: %s" % e)
 
-
-
 # emessage = EM7_VALUES["%M"]
 # company = EM7_VALUES["%b"]
 # snow_company = EM7_VALUES["%B"]
@@ -147,8 +146,6 @@ case_template = fidelus.silo.get_case_template(etype)
 # change assignment group as needed if company is MSHS Network
 if company == "Mount Sinai - Network":
     case_assignment = "ca64f8911b39c0102c2ca7d4bd4bcbda"
-
-
 
 # set case priority based on mapping SL Event Sev to SN Priority
 # SL Event Severity
@@ -174,7 +171,6 @@ elif severity == 4:
     # SL critical
     case_priority = 1
 
-
 event_link = em7_host_url + "index.em7?exec=events&q_type=aid&q_arg=%s&q_sev=1&q_sort=0&q_oper=0" % event_id
 snow_descr = "%s: %s" % (device_name, emessage)
 
@@ -186,9 +182,6 @@ notes_list.append("ServiceNow Descr: %s" % snow_descr)
 notes_list.append("Device ID: %s" % did)
 notes_list.append("Company: %s" % company)
 notes_list.append("EM7 Event Type: %s" % etype)
-
-
-
 
 # some routines to filter out un-wanted cases
 if "vlan" or "vl" in start_data["message"].lower():
@@ -202,7 +195,6 @@ if "vlan" or "vl" in start_data["message"].lower():
         EM7_RESULT = make_display_notes(notes_list)
 else:
     pass
-
 
 # ------------------------------------------------------------------------------
 # case correlation logic
@@ -234,7 +226,7 @@ if did:
     device_active_events = fidelus.silo.get_active_events_device(did, etype)
     if device_active_events is None:
         # possible that other RBA executions are happening, wait some time
-        sleep(randint(10,30))
+        sleep(randint(10, 30))
         # re-query for active events to correlate
         device_active_events = fidelus.silo.get_active_events_device(did)
     
@@ -247,9 +239,6 @@ else:
     create_new_case = True
     update_case_notes = False
     correlate_only = False
-
-
-
 
 if "Bandwidth" in emessage:
     device_active_cases = fidelus.servicenow.check_ci_cases_open(ci_sys_id, etype, "Bandwidth")
@@ -282,8 +271,8 @@ if "Failed Availability" in emessage:
         EM7_RESULT = make_display_notes(notes_list)
 
 if "DRF" in emessage:
-    # check if this is a DRF related event. 
-    # If so, check if there is an existing DRF case for this device. 
+    # check if this is a DRF related event.
+    # If so, check if there is an existing DRF case for this device.
     # If so, correlate to the existing open case
     notes_list.append("This is a DRF event, checking for an open Case to correlate to.")
     device_active_cases = fidelus.servicenow.check_ci_cases_open(ci_sys_id, etype, "DRF")
@@ -299,7 +288,6 @@ if "DRF" in emessage:
 if "critical ping" in emessage:
     # lower case priority for this event type to P2 (SL default P1)
     case_priority = 2
-
 
 if correlate_only is True:
     # There are active cases for this Device and Event
@@ -405,7 +393,7 @@ if create_new_case is True:
                 else:
                     case_short_descr = company + ": " + emessage
                 case_descr = "Fidelus Monitoring has detected the following Event information:\n %s" % case_short_descr
-        
+    
     else:
         # simple pass-through from SL1 event data into case
         if ip:
@@ -440,7 +428,7 @@ if create_new_case is True:
         'u_sl_event_policy_id': etype,
         'u_sciencelogic_event_cleared': 'false',
         'u_sciencelogic_event': 'https://monitor.fidelus.com/em7/index.em7?exec=event_print_ajax&aid=%s' % event_id,
-        }
+    }
     
     notes_list.append("Using ServiceNow case dictionary:")
     notes_list.append(str(snow_case_dict))
